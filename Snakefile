@@ -61,6 +61,19 @@ rule gene_names:
     run:
         shell("zcat {input} | awk 'BEGIN{FS=\"\t\"}{split($9,a,\";\"); if($3~\"gene\") print) a[1]\"\t\"a[3]}' | sed 's/gene_source \"ensembl\"//' | tr ' ' '\t' | cut -f 2,5 | tr -d '\"' > {output}")
 
+# make a metadata table from the sample names
+rule metadata:
+    input:
+        expand(str(input_dir / "{sample}.fastq.gz"), sample=SAMPLES)
+    output:
+        output_dir / "metadata.csv"
+    run:
+        regex_use = config.regex_metadata.replace("{","{{",-1).replace("}","}}",-1) #this suppresses wildcard expansion by snakemake. Otherwise, snakemake thinks there are wildcards in the regular expression.
+        if config.first_in_regex:
+            shell( "python Lib/SampleMetadata.py -i %s/ -o %s -r '%s'" %(indir, output, regex_use) )
+        else:
+            shell("python Lib/SampleMetadata.py -i %s/ -o %s -r '%s' -f" %(indir,output, regex_use))
+
 # run whole pipeline
 
 rule all:
@@ -73,8 +86,57 @@ rule all:
 # sequence trimming with bbduk
 
 rule bbduk_all:
+    input:
+        expand(str(trim_dir / "{sample}_trimmed.fq.gz"), sample=SAMPLES),
+    log: log_dir / "bbduk_all.log"
 
-rule bbduk:
+if config.mode == "pe":
+    rule bbduk:
+        input:
+            R1=ancient(str(input_dir / "{sample}.R1.fastq.gz")),
+            R2=ancient(str(input_dir / "{sample}.R2.fastq.gz")),
+        output:
+            R1=trim_dir / "{sample}.R1.qc.fastq.gz" %(indir),
+            R2=trim_dir / "{sample}.R2.qc.fastq.gz" %(indir),
+            qhist= log_dir / "{sample}/qhist.txt" %(indir),
+            lhist= log_dir / "{sample}/lhist.txt" %(indir),
+            aqhist= log_dir / "{sample}/aqhist.txt" %(indir),
+        log:
+            filter_stats = log_dir / "bbduk.{sample}.log"
+        params:
+            qtrim=config.qtrim,
+            quality=config.quality,
+            min_len=config.min_len,
+            adaptors=config.adaptors,
+        shell:
+            '''
+            bbduk.sh in={input.R1} in2={input.R2} out={output.R1} out2={output.R2} maq={params.quality} ref={params.adaptors} qtrim={params.qtrim} trimq={params.quality} minlength={params.min_len} tpe tbo qhist={output.qhist} lhist={output.lhist} aqhist={output.aqhist} overwrite=t 2> {log.filter_stats}
+            '''
+            # If you put this into a run: with a shell() it will complain about exitcode != 0 when you use 2> {log}
+            # See https://snakemake.readthedocs.io/en/stable/project_info/faq.html#my-shell-command-fails-with-exit-code-0-from-within-a-pipe-what-s-wrong
+
+if config.mode == "se":
+    rule bbduk:
+        input:
+            R1=ancient(str(input_dir / "{sample}.R1.fastq.gz")),
+        output:
+            R1=trim_dir / "{sample}.R1.qc.fastq.gz" %(indir),
+            qhist= log_dir / "{sample}/qhist.txt" %(indir),
+            lhist= log_dir / "{sample}/lhist.txt" %(indir),
+            aqhist= log_dir / "{sample}/aqhist.txt" %(indir),
+        log:
+            filter_stats = log_dir / "bbduk.{sample}.log"
+        params:
+            qtrim=config.qtrim,
+            quality=config.quality,
+            min_len=config.min_len,
+            adaptors=config.adaptors,
+        shell:
+            '''
+            bbduk.sh in={input.R1} out={output.R1} maq={params.quality} ref={params.adaptors} qtrim={params.qtrim} trimq={params.quality} minlength={params.min_len} tpe tbo qhist={output.qhist} lhist={output.lhist} aqhist={output.aqhist} overwrite=t 2> {log.filter_stats}
+            '''
+            # If you put this into a run: with a shell() it will complain about exitcode != 0 when you use 2> {log}
+            # See https://snakemake.readthedocs.io/en/stable/project_info/faq.html#my-shell-command-fails-with-exit-code-0-from-within-a-pipe-what-s-wrong
 
 
 # alignment with STAR
