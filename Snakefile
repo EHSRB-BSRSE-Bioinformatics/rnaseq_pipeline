@@ -96,11 +96,11 @@ if config.mode == "pe":
             R1=ancient(str(input_dir / "{sample}.R1.fastq.gz")),
             R2=ancient(str(input_dir / "{sample}.R2.fastq.gz")),
         output:
-            R1=trim_dir / "{sample}.R1.qc.fastq.gz" %(indir),
-            R2=trim_dir / "{sample}.R2.qc.fastq.gz" %(indir),
-            qhist= log_dir / "{sample}/qhist.txt" %(indir),
-            lhist= log_dir / "{sample}/lhist.txt" %(indir),
-            aqhist= log_dir / "{sample}/aqhist.txt" %(indir),
+            R1 = trim_dir / "{sample}.R1.qc.fastq.gz",
+            R2 = trim_dir / "{sample}.R2.qc.fastq.gz",
+            qhist = log_dir / "{sample}/qhist.txt",
+            lhist = log_dir / "{sample}/lhist.txt",
+            aqhist = log_dir / "{sample}/aqhist.txt",
         log:
             filter_stats = log_dir / "bbduk.{sample}.log"
         params:
@@ -118,12 +118,12 @@ if config.mode == "pe":
 if config.mode == "se":
     rule bbduk:
         input:
-            R1=ancient(str(input_dir / "{sample}.R1.fastq.gz")),
+            R1 = ancient(str(input_dir / "{sample}.R1.fastq.gz")),
         output:
-            R1=trim_dir / "{sample}.R1.qc.fastq.gz" %(indir),
-            qhist= log_dir / "{sample}/qhist.txt" %(indir),
-            lhist= log_dir / "{sample}/lhist.txt" %(indir),
-            aqhist= log_dir / "{sample}/aqhist.txt" %(indir),
+            R1 = trim_dir / "{sample}.R1.qc.fastq.gz",
+            qhist = log_dir / "{sample}/qhist.txt",
+            lhist = log_dir / "{sample}/lhist.txt",
+            aqhist = log_dir / "{sample}/aqhist.txt",
         log:
             filter_stats = log_dir / "bbduk.{sample}.log"
         params:
@@ -142,8 +142,41 @@ if config.mode == "se":
 # alignment with STAR
 
 rule STAR_all:
+    input:
+        expand(str(align_dir / "{sample}.aligned.out.bam"), sample=SAMPLES)
 
-rule STAR:
+if config.mode == "pe":
+    rule STAR:
+        input:
+            R1 = trim_dir / "{sample}.R1.qc.fastq.gz",
+            R2 = trim_dir / "{sample}.R2.qc.fastq.gz",
+        output:
+            bam = align_dir / "{sample}.aligned.out.bam"
+        params:
+            annotations = config.annotations,
+            genome_dir = genome_dir,
+            lenfrac_required = config.lenfrac_required
+        resources:
+            load=100
+        run:
+            shell( "STAR --genomeDir {params.genome_dir} --readFilesIn {input.R1} {input.R2}  --readFilesCommand zcat --limitBAMsortRAM 10000000000 --outSAMtype BAM Unsorted --outFileNamePrefix %s --runThreadN 50 --outReadsUnmapped Fastx --sjdbGTFfile {params.annotations} --quantMode TranscriptomeSAM GeneCounts --outFilterScoreMinOverLread {params.lenfrac_required} --outFilterMatchNminOverLread {params.lenfrac_required}" %(os.path.dirname(output.bam) + "/") )
+
+
+if config.mode == "se":
+    rule STAR:
+        input:
+            R1 = trim_dir / "{sample}.R1.qc.fastq.gz",
+        output:
+            bam = align_dir / "{sample}.aligned.out.bam"
+        params:
+            annotations = config.annotations,
+            genome_dir = genome_dir,
+            lenfrac_required = config.lenfrac_required
+        resources:
+            load=100
+        run:
+            shell( "STAR --genomeDir {params.genome_dir} --readFilesIn {input.R1} --readFilesCommand zcat --limitBAMsortRAM 10000000000 --outSAMtype BAM Unsorted --outFileNamePrefix %s --runThreadN 50 --outReadsUnmapped Fastx --sjdbGTFfile {params.annotations} --quantMode TranscriptomeSAM GeneCounts --outFilterScoreMinOverLread {params.lenfrac_required} --outFilterMatchNminOverLread {params.lenfrac_required}" %(os.path.dirname(output.bam) + "/") )
+
 
 # fastqc
 
