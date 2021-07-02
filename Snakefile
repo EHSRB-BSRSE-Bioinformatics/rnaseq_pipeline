@@ -251,20 +251,6 @@ if config.mode == "se":
 			'--readFilesCommand zcat \'
 			'--outFileNamePrefix {output.bam}' #TODO fix this so that it's pointing to the directory properly
 
-# fastqc
-
-rule fastqc_all:
-    input:
-        expand(str(fastqc_dir / "{sample}_fastqc.zip"), sample=SAMPLES)
-
-rule fastqc:
-    input:
-        input_dir / "{sample}.fastq.gz"
-    output: 
-        fastqc_dir / "{sample}_fastqc.zip"
-    run:
-        shell("fastqc -o {fastqc_dir} {input}")
-
 
 # multiqc
 
