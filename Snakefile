@@ -83,15 +83,28 @@ rule all:
         output_dir / "multiqc_report.html",
     log: log_dir / "all.log"
 
-# sequence trimming with bbduk
+##################################
+### Trimming raw reads : Fastp ###
+##################################
 
-rule bbduk_all:
+################################
+#INFORMATION ON TRIMMING PROCESS
+#--cut_front --cut_front_window_size 1 --cut_front_mean_quality 3 == Trimmomatic  "LEADING:3"
+#--cut_tail --cut_tail_window_size 1 --cut_tail_mean_quality 3 == Trimmomatic  "TRAILING:3"
+#--cut_right --cut_right_window_size 4 --cut_right_mean_quality 15 == Trimmomatic  "SLIDINGWINDOW:4:15"
+
+#### If additional trimming is needed (see multiQCreport): 
+# add to R1: --trim_front1 {amount_bases} and/or --trim_tail1 {amount_bases}
+# add to R2: --trim_front2 {amount_bases} and/or --trim_tail2 {amount_bases}
+
+
+rule fastp_all:
     input:
         expand(str(trim_dir / "{sample}_trimmed.fq.gz"), sample=SAMPLES),
     log: log_dir / "bbduk_all.log"
 
 if config.mode == "pe":
-    rule bbduk:
+    rule fastp:
         input:
             R1=ancient(str(input_dir / "{sample}.R1.fastq.gz")),
             R2=ancient(str(input_dir / "{sample}.R2.fastq.gz")),
@@ -104,42 +117,90 @@ if config.mode == "pe":
         log:
             filter_stats = log_dir / "bbduk.{sample}.log"
         params:
-            qtrim=config.qtrim,
-            quality=config.quality,
-            min_len=config.min_len,
-            adaptors=config.adaptors,
+            front_size = 1,
+            front_quality = 3,
+            tail_size = 1,
+            tail_quality = 3,
+            right_size = 4,
+            right_quality = 15,
+            length_required = 36,
         shell:
-            '''
-            bbduk.sh in={input.R1} in2={input.R2} out={output.R1} out2={output.R2} maq={params.quality} ref={params.adaptors} qtrim={params.qtrim} trimq={params.quality} minlength={params.min_len} tpe tbo qhist={output.qhist} lhist={output.lhist} aqhist={output.aqhist} overwrite=t 2> {log.filter_stats}
-            '''
-            # If you put this into a run: with a shell() it will complain about exitcode != 0 when you use 2> {log}
-            # See https://snakemake.readthedocs.io/en/stable/project_info/faq.html#my-shell-command-fails-with-exit-code-0-from-within-a-pipe-what-s-wrong
+            'fastp \'
+            '--in1 input.R1 \'
+            '--in2 input.R2 \'
+            '--out1 output.R1 \'
+            '--out2 output.R2 \'
+            '--json'
+            '--html'
+            '--cut_front \'
+            '--cut_front_window_size params.front_size \'
+            '--cut_front_mean_quality params.front_quality \'
+            '--cut_tail \'
+            '--cut_tail_window_size params.tail_size \'
+            '--cut_tail_mean_quality params.tail_quality \'
+            '--cut_right \'
+            '--cut_right_window_size params.right_size \'
+            '--cut_right_mean_quality params.right_quality \'
+            '--length_required params.length_required \'
 
 if config.mode == "se":
-    rule bbduk:
+    rule fastp:
         input:
-            R1 = ancient(str(input_dir / "{sample}.R1.fastq.gz")),
+            R1=ancient(str(input_dir / "{sample}.R1.fastq.gz")),
         output:
             R1 = trim_dir / "{sample}.R1.qc.fastq.gz",
-            qhist = log_dir / "{sample}/qhist.txt",
-            lhist = log_dir / "{sample}/lhist.txt",
-            aqhist = log_dir / "{sample}/aqhist.txt",
         log:
             filter_stats = log_dir / "bbduk.{sample}.log"
         params:
-            qtrim=config.qtrim,
-            quality=config.quality,
-            min_len=config.min_len,
-            adaptors=config.adaptors,
+            front_size = 1,
+            front_quality = 3,
+            tail_size = 1,
+            tail_quality = 3,
+            right_size = 4,
+            right_quality = 15,
+            length_required = 36,
         shell:
-            '''
-            bbduk.sh in={input.R1} out={output.R1} maq={params.quality} ref={params.adaptors} qtrim={params.qtrim} trimq={params.quality} minlength={params.min_len} tpe tbo qhist={output.qhist} lhist={output.lhist} aqhist={output.aqhist} overwrite=t 2> {log.filter_stats}
-            '''
-            # If you put this into a run: with a shell() it will complain about exitcode != 0 when you use 2> {log}
-            # See https://snakemake.readthedocs.io/en/stable/project_info/faq.html#my-shell-command-fails-with-exit-code-0-from-within-a-pipe-what-s-wrong
+            'fastp \'
+            '--in1 input.R1 \'
+            '--out1 output.R1 \'
+            '--json'
+            '--html'
+            '--cut_front \'
+            '--cut_front_window_size params.front_size \'
+            '--cut_front_mean_quality params.front_quality \'
+            '--cut_tail \'
+            '--cut_tail_window_size params.tail_size \'
+            '--cut_tail_mean_quality params.tail_quality \'
+            '--cut_right \'
+            '--cut_right_window_size params.right_size \'
+            '--cut_right_mean_quality params.right_quality \'
+            '--length_required params.length_required \'
 
 
-# alignment with STAR
+####################################################
+### Alignment of reads (paired end & single end) ###
+####################################################
+
+rule make_index:
+    input:
+        genome = asdf #TODO fix this
+    params:
+        genome_dir = config.genome_dir,
+        annotations = config.annotations,
+        overhang = 100,
+        threads = config.threads,
+        suffix_array_sparsity = 2, # bigger for smaller (RAM), slower indexing
+        genomeChrBinNbits = 15, # might need to mess with this for bad genomes
+    shell:
+		'STAR \'
+		'--runMode genomeGenerate \'
+		'--genomeDir {params.genome_dir} \'
+		'--genomeFastaFiles {input.genome} \'
+		'--sjdbGTFfile {params.annotations}} \'
+		'--sjdbOverhang {params.overhang} \'
+		'--runThreadN {params.threads} \'
+		'--genomeSAsparseD {params.suffix_array_sparsity} \'
+		'--genomeChrBinNbits {params.genomeChrBinNbits}'
 
 rule STAR_all:
     input:
@@ -156,27 +217,39 @@ if config.mode == "pe":
             annotations = config.annotations,
             genome_dir = genome_dir,
             lenfrac_required = config.lenfrac_required
+            threads = config.threads,
         resources:
             load=100
-        run:
-            shell( "STAR --genomeDir {params.genome_dir} --readFilesIn {input.R1} {input.R2}  --readFilesCommand zcat --limitBAMsortRAM 10000000000 --outSAMtype BAM Unsorted --outFileNamePrefix %s --runThreadN 50 --outReadsUnmapped Fastx --sjdbGTFfile {params.annotations} --quantMode TranscriptomeSAM GeneCounts --outFilterScoreMinOverLread {params.lenfrac_required} --outFilterMatchNminOverLread {params.lenfrac_required}" %(os.path.dirname(output.bam) + "/") )
-
+        shell:
+        	'STAR \'
+			'--runThreadN {params.threads} \'
+			'--genomeDir {params.genome_dir} \'
+			'--readFilesIn {input.R1} {input.R2} \'
+			'--quantMode TranscriptomeSAM \'
+			'--readFilesCommand zcat \'
+			'--outFileNamePrefix {output.bam}' #TODO fix this so that it's pointing to the directory properly
 
 if config.mode == "se":
     rule STAR:
         input:
-            R1 = trim_dir / "{sample}.R1.qc.fastq.gz",
+            R1 = trim_dir / "{sample}.R1.qc.fastq.gz"
         output:
             bam = align_dir / "{sample}.aligned.out.bam"
         params:
             annotations = config.annotations,
             genome_dir = genome_dir,
             lenfrac_required = config.lenfrac_required
+            threads = config.threads,
         resources:
             load=100
-        run:
-            shell( "STAR --genomeDir {params.genome_dir} --readFilesIn {input.R1} --readFilesCommand zcat --limitBAMsortRAM 10000000000 --outSAMtype BAM Unsorted --outFileNamePrefix %s --runThreadN 50 --outReadsUnmapped Fastx --sjdbGTFfile {params.annotations} --quantMode TranscriptomeSAM GeneCounts --outFilterScoreMinOverLread {params.lenfrac_required} --outFilterMatchNminOverLread {params.lenfrac_required}" %(os.path.dirname(output.bam) + "/") )
-
+        shell:
+        	'STAR \'
+			'--runThreadN {params.threads} \'
+			'--genomeDir {params.genome_dir} \'
+			'--readFilesIn {input.R1} \'
+			'--quantMode TranscriptomeSAM \'
+			'--readFilesCommand zcat \'
+			'--outFileNamePrefix {output.bam}' #TODO fix this so that it's pointing to the directory properly
 
 # fastqc
 
