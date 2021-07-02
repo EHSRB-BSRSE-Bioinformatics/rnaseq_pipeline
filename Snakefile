@@ -181,16 +181,18 @@ if config.mode == "se":
 ### Alignment of reads (paired end & single end) ###
 ####################################################
 
-rule make_index:
+rule STAR_make_index:
     input:
         genome = asdf #TODO fix this
     params:
-        genome_dir = config.genome_dir,
+        genome_dir = config.STAR_index,
         annotations = config.annotations,
         overhang = 100,
         threads = config.threads,
         suffix_array_sparsity = 2, # bigger for smaller (RAM), slower indexing
         genomeChrBinNbits = 15, # might need to mess with this for bad genomes
+    output:
+        directory(params.STAR_index),
     shell:
 		'STAR \'
 		'--runMode genomeGenerate \'
@@ -251,6 +253,58 @@ if config.mode == "se":
 			'--readFilesCommand zcat \'
 			'--outFileNamePrefix {output.bam}' #TODO fix this so that it's pointing to the directory properly
 
+
+#######################
+# QUANTIFICATION RSEM #
+#######################
+
+rule RSEM_make_index:
+    input:
+        genome = asdf #TODO fix this
+    params:
+        index_dir = config.rsem_index_dir,
+        annotations = config.annotations,
+        genome_id = config.genome_id,
+    output:
+        directory(params.index_dir),
+    shell:
+	    'rsem-prepare-reference --gtf {params.annotations} {input.genome} {output} {params.genome_id}'
+
+
+if config.mode == "pe":
+    rule RSEM:
+        input:
+            bam = align_dir / "{sample}.aligned.out.bam"
+        output:
+            isoforms = quant_dir / "{sample}.isoforms.results"
+            genes = quant_dir / "{sample}.genes.results"
+        params:
+            threads = config.threads,
+        shell:
+            'rsem-calculate-expression \'
+            '-p {params.threads} \'
+            '--paired-end \'
+            '--bam {input.bam} \'
+            '--no-bam-output \'
+            '{input.genome} \'
+            '{sample}'
+
+if config.mode == "se":
+    rule RSEM:
+        input:
+            bam = align_dir / "{sample}.aligned.out.bam"
+        output:
+            isoforms = quant_dir / "{sample}.isoforms.results"
+            genes = quant_dir / "{sample}.genes.results"
+        params:
+            threads = config.threads,
+        shell:
+            'rsem-calculate-expression \'
+            '--paired-end \'
+            '--bam {input.bam} \'
+            '--no-bam-output \'
+            '{input.genome} \'
+            '{sample}'
 
 # multiqc
 
