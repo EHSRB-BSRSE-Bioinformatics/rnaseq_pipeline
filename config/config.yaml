@@ -1,0 +1,19 @@
+
+# location of the input reads
+input_dir: /media/hdd1/DesaulniersLab/RRBS_des/phase2/raw
+
+# location for all the output (interim and final files)
+output_dir: /home/katecook/Documents/HC_EHSRB/projects/ddesaulniers_methylation/phase2
+
+# where are the genomes located?
+genome_root_dir: /home/katecook/Documents/genomes
+# name of a subfolder within that folder
+genome: MesAur1.0_ensembl
+# filename for gene annotations
+annotation_filename: Mesocricetus_auratus.MesAur1.0.100.gtf.gz
+
+# sample stuff
+samples:
+  sample1
+  sample2
+  sample3

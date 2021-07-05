@@ -3,19 +3,18 @@ import pandas as pd
 from glob import glob
 import pathlib
 
-config_file_name = "config.yaml"
 
-configfile: config_file_name
+configfile: "config/config.yaml"
 
-print("config file: " + config_file_name)
+print("config file: " + configfile)
 
 # set up conditions and samples
 sample_info = config["samples"]
 
-SAMPLES = sum([i.split(" ") for i in list(sample_info.values())], [])
-CONDITIONS = list(sample_info.keys())
+SAMPLES = sample_info.values
+#CONDITIONS = list(sample_info.keys())
 
-print("conditions: " + str(CONDITIONS))
+#print("conditions: " + str(CONDITIONS))
 print("samples: " + str(SAMPLES))
 
 # set up directories
@@ -54,25 +53,24 @@ shell("cp -rf {config_file_name} {log_dir}")
 
 # gene names file, needed for annotation
 # TODO do we need this?
-
-rule gene_names:
-    input: genome_dir / config["annotation_filename"]
-    output: genome_dir / "geneid_to_name.txt"
-    run:
-        shell("zcat {input} | awk 'BEGIN{FS=\"\t\"}{split($9,a,\";\"); if($3~\"gene\") print) a[1]\"\t\"a[3]}' | sed 's/gene_source \"ensembl\"//' | tr ' ' '\t' | cut -f 2,5 | tr -d '\"' > {output}")
+#rule gene_names:
+#    input: genome_dir / config["annotation_filename"]
+#    output: genome_dir / "geneid_to_name.txt"
+#    run:
+#        shell("zcat {input} | awk 'BEGIN{FS=\"\t\"}{split($9,a,\";\"); if($3~\"gene\") print) a[1]\"\t\"a[3]}' | sed 's/gene_source \"ensembl\"//' | tr ' ' '\t' | cut -f 2,5 | tr -d '\"' > {output}")
 
 # make a metadata table from the sample names
-rule metadata:
-    input:
-        expand(str(input_dir / "{sample}.fastq.gz"), sample=SAMPLES)
-    output:
-        output_dir / "metadata.csv"
-    run:
-        regex_use = config.regex_metadata.replace("{","{{",-1).replace("}","}}",-1) #this suppresses wildcard expansion by snakemake. Otherwise, snakemake thinks there are wildcards in the regular expression.
-        if config.first_in_regex:
-            shell( "python Lib/SampleMetadata.py -i %s/ -o %s -r '%s'" %(indir, output, regex_use) )
-        else:
-            shell("python Lib/SampleMetadata.py -i %s/ -o %s -r '%s' -f" %(indir,output, regex_use))
+#rule metadata:
+#    input:
+#        expand(str(input_dir / "{sample}.fastq.gz"), sample=SAMPLES)
+#    output:
+#        output_dir / "metadata.csv"
+#    run:
+#        regex_use = config.regex_metadata.replace("{","{{",-1).replace("}","}}",-1) #this suppresses wildcard expansion by snakemake. Otherwise, snakemake thinks there are wildcards in the regular expression.
+#        if config.first_in_regex:
+#            shell( "python Lib/SampleMetadata.py -i %s/ -o %s -r '%s'" %(indir, output, regex_use) )
+#        else:
+#            shell("python Lib/SampleMetadata.py -i %s/ -o %s -r '%s' -f" %(indir,output, regex_use))
 
 # run whole pipeline
 
