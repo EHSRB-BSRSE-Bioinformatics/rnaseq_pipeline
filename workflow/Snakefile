@@ -125,23 +125,25 @@ if config.mode == "pe":
             right_quality = 15,
             length_required = 36,
         shell:
-            'fastp \'
-            '--in1 input.R1 \'
-            '--in2 input.R2 \'
-            '--out1 output.R1 \'
-            '--out2 output.R2 \'
-            '--json'
-            '--html'
-            '--cut_front \'
-            '--cut_front_window_size params.front_size \'
-            '--cut_front_mean_quality params.front_quality \'
-            '--cut_tail \'
-            '--cut_tail_window_size params.tail_size \'
-            '--cut_tail_mean_quality params.tail_quality \'
-            '--cut_right \'
-            '--cut_right_window_size params.right_size \'
-            '--cut_right_mean_quality params.right_quality \'
-            '--length_required params.length_required \'
+            '''
+            fastp \
+            --in1 input.R1 \
+            --in2 input.R2 \
+            --out1 output.R1 \
+            --out2 output.R2 \
+            --json
+            --html
+            --cut_front \
+            --cut_front_window_size params.front_size \
+            --cut_front_mean_quality params.front_quality \
+            --cut_tail \
+            --cut_tail_window_size params.tail_size \
+            --cut_tail_mean_quality params.tail_quality \
+            --cut_right \
+            --cut_right_window_size params.right_size \
+            --cut_right_mean_quality params.right_quality \
+            --length_required params.length_required \
+            '''
 
 if config.mode == "se":
     rule fastp:
@@ -160,21 +162,23 @@ if config.mode == "se":
             right_quality = 15,
             length_required = 36,
         shell:
-            'fastp \'
-            '--in1 input.R1 \'
-            '--out1 output.R1 \'
-            '--json'
-            '--html'
-            '--cut_front \'
-            '--cut_front_window_size params.front_size \'
-            '--cut_front_mean_quality params.front_quality \'
-            '--cut_tail \'
-            '--cut_tail_window_size params.tail_size \'
-            '--cut_tail_mean_quality params.tail_quality \'
-            '--cut_right \'
-            '--cut_right_window_size params.right_size \'
-            '--cut_right_mean_quality params.right_quality \'
-            '--length_required params.length_required \'
+            '''
+            fastp \
+            --in1 input.R1 \
+            --out1 output.R1 \
+            --json
+            --html
+            --cut_front \
+            --cut_front_window_size params.front_size \
+            --cut_front_mean_quality params.front_quality \
+            --cut_tail \
+            --cut_tail_window_size params.tail_size \
+            --cut_tail_mean_quality params.tail_quality \
+            --cut_right \
+            --cut_right_window_size params.right_size \
+            --cut_right_mean_quality params.right_quality \
+            --length_required params.length_required \
+            '''
 
 
 ####################################################
@@ -194,15 +198,17 @@ rule STAR_make_index:
     output:
         directory(params.STAR_index),
     shell:
-		'STAR \'
-		'--runMode genomeGenerate \'
-		'--genomeDir {params.genome_dir} \'
-		'--genomeFastaFiles {input.genome} \'
-		'--sjdbGTFfile {params.annotations}} \'
-		'--sjdbOverhang {params.overhang} \'
-		'--runThreadN {params.threads} \'
-		'--genomeSAsparseD {params.suffix_array_sparsity} \'
-		'--genomeChrBinNbits {params.genomeChrBinNbits}'
+        '''
+		STAR \
+        --runMode genomeGenerate \
+		--genomeDir {params.genome_dir} \
+		--genomeFastaFiles {input.genome} \
+		--sjdbGTFfile {params.annotations}} \
+		--sjdbOverhang {params.overhang} \
+		--runThreadN {params.threads} \
+		--genomeSAsparseD {params.suffix_array_sparsity} \
+		--genomeChrBinNbits {params.genomeChrBinNbits}
+        '''
 
 rule STAR_all:
     input:
@@ -223,13 +229,15 @@ if config.mode == "pe":
         resources:
             load=100
         shell:
-        	'STAR \'
-			'--runThreadN {params.threads} \'
-			'--genomeDir {params.genome_dir} \'
-			'--readFilesIn {input.R1} {input.R2} \'
-			'--quantMode TranscriptomeSAM \'
-			'--readFilesCommand zcat \'
-			'--outFileNamePrefix {output.bam}' #TODO fix this so that it's pointing to the directory properly
+            '''
+		    STAR \
+			--runThreadN {params.threads} \
+			--genomeDir {params.genome_dir} \
+			--readFilesIn {input.R1} {input.R2} \
+			--quantMode TranscriptomeSAM \
+			--readFilesCommand zcat \
+			--outFileNamePrefix {output.bam} #TODO fix this so that it's pointing to the directory properly
+            '''
 
 if config.mode == "se":
     rule STAR:
@@ -245,13 +253,15 @@ if config.mode == "se":
         resources:
             load=100
         shell:
-        	'STAR \'
-			'--runThreadN {params.threads} \'
-			'--genomeDir {params.genome_dir} \'
-			'--readFilesIn {input.R1} \'
-			'--quantMode TranscriptomeSAM \'
-			'--readFilesCommand zcat \'
-			'--outFileNamePrefix {output.bam}' #TODO fix this so that it's pointing to the directory properly
+            '''
+            STAR \
+                --runThreadN {params.threads} \
+                --genomeDir {params.genome_dir} \
+                --readFilesIn {input.R1} \
+                --quantMode TranscriptomeSAM \
+                --readFilesCommand zcat \
+                --outFileNamePrefix {output.bam} #TODO fix this so that it's pointing to the directory properly
+            '''
 
 
 #######################
@@ -281,13 +291,15 @@ if config.mode == "pe":
         params:
             threads = config.threads,
         shell:
-            'rsem-calculate-expression \'
-            '-p {params.threads} \'
-            '--paired-end \'
-            '--bam {input.bam} \'
-            '--no-bam-output \'
-            '{input.genome} \'
-            '{sample}'
+            '''
+            rsem-calculate-expression \
+            -p {params.threads} \
+            --paired-end \
+            --bam {input.bam} \
+            --no-bam-output \
+            {input.genome} \
+            {sample}
+            '''
 
 if config.mode == "se":
     rule RSEM:
@@ -299,12 +311,14 @@ if config.mode == "se":
         params:
             threads = config.threads,
         shell:
-            'rsem-calculate-expression \'
-            '--paired-end \'
-            '--bam {input.bam} \'
-            '--no-bam-output \'
-            '{input.genome} \'
-            '{sample}'
+            '''
+            rsem-calculate-expression \
+            --paired-end \
+            --bam {input.bam} \
+            --no-bam-output \
+            {input.genome} \
+            {sample}'
+            '''
 
 # multiqc
 
