@@ -286,8 +286,8 @@ if config.mode == "pe":
         input:
             bam = align_dir / "{sample}.aligned.out.bam"
         output:
-            isoforms = quant_dir / "{sample}.isoforms.results"
-            genes = quant_dir / "{sample}.genes.results"
+            isoforms = quant_dir / "{sample}.isoforms.results",
+            genes = quant_dir / "{sample}.genes.results",
         params:
             threads = config.threads,
         shell:
@@ -306,8 +306,8 @@ if config.mode == "se":
         input:
             bam = align_dir / "{sample}.aligned.out.bam"
         output:
-            isoforms = quant_dir / "{sample}.isoforms.results"
-            genes = quant_dir / "{sample}.genes.results"
+            isoforms = quant_dir / "{sample}.isoforms.results",
+            genes = quant_dir / "{sample}.genes.results",
         params:
             threads = config.threads,
         shell:
