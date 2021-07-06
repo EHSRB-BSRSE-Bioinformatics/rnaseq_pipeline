@@ -19,17 +19,17 @@ SAMPLES = sample_info
 print("samples: " + str(SAMPLES))
 
 # set up directories
-root = Path(os.environ["prefix"])
+output_dir = Path(os.environ["prefix"])
 
 genome_dir = Path(os.environ["genomedir"])
 
-input_dir = root / "raw"
+input_dir = output_dir / "raw"
 
-trim_dir = root / "trimmed"
-fastqc_dir = root / "fastqc"
-align_dir = root / "aligned"
-procesed_dir = root / "processed"
-log_dir = root / "logs"
+trim_dir = output_dir / "trimmed"
+fastqc_dir = output_dir / "fastqc"
+align_dir = output_dir / "aligned"
+procesed_dir = output_dir / "processed"
+log_dir = output_dir / "logs"
 
 trim_dir.mkdir(parents=True, exist_ok=True)
 fastqc_dir.mkdir(parents=True, exist_ok=True)
@@ -46,8 +46,8 @@ print("fastqc dir: " + str(fastqc_dir))
 print("alignments dir: " + str(align_dir))
 print("snakemake log dir: " + str(log_dir))
 
-shell("cp -rf Snakefile {log_dir}")
-shell("cp -rf {config_file_name} {log_dir}")
+shell("cp -rf workflow {log_dir}")
+shell("cp -rf config {log_dir}")
 
 # gene names file, needed for annotation
 # TODO do we need this?
