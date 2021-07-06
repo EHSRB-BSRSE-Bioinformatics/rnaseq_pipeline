@@ -99,7 +99,7 @@ rule fastp_all:
         expand(str(trim_dir / "{sample}_trimmed.fq.gz"), sample=SAMPLES),
     log: log_dir / "bbduk_all.log"
 
-if config.mode == "pe":
+if config["mode"] == "pe":
     rule fastp:
         input:
             R1=ancient(str(input_dir / "{sample}.R1.fastq.gz")),
@@ -141,7 +141,7 @@ if config.mode == "pe":
             --length_required params.length_required \
             '''
 
-if config.mode == "se":
+if config["mode"] == "se":
     rule fastp:
         input:
             R1=ancient(str(input_dir / "{sample}.R1.fastq.gz")),
@@ -210,7 +210,7 @@ rule STAR_all:
     input:
         expand(str(align_dir / "{sample}.aligned.out.bam"), sample=SAMPLES)
 
-if config.mode == "pe":
+if config["mode"] == "pe":
     rule STAR:
         input:
             R1 = trim_dir / "{sample}.R1.qc.fastq.gz",
@@ -235,7 +235,7 @@ if config.mode == "pe":
 			--outFileNamePrefix {output.bam} #TODO fix this so that it's pointing to the directory properly
             '''
 
-if config.mode == "se":
+if config["mode"] == "se":
     rule STAR:
         input:
             R1 = trim_dir / "{sample}.R1.qc.fastq.gz"
@@ -277,7 +277,7 @@ rule RSEM_make_index:
 	    'rsem-prepare-reference --gtf {params.annotations} {input.genome} {output} {params.genome_id}'
 
 
-if config.mode == "pe":
+if config["mode"] == "pe":
     rule RSEM:
         input:
             bam = align_dir / "{sample}.aligned.out.bam"
@@ -297,7 +297,7 @@ if config.mode == "pe":
             {sample}
             '''
 
-if config.mode == "se":
+if config["mode"] == "se":
     rule RSEM:
         input:
             bam = align_dir / "{sample}.aligned.out.bam"
