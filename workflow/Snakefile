@@ -9,12 +9,10 @@ envvars:
     "prefix",
     "genomedir"
 
-print("config file: " + configfile)
-
 # set up conditions and samples
 sample_info = config["samples"]
 
-SAMPLES = sample_info.values
+SAMPLES = sample_info
 #CONDITIONS = list(sample_info.keys())
 
 #print("conditions: " + str(CONDITIONS))
@@ -33,7 +31,6 @@ align_dir = root / "aligned"
 procesed_dir = root / "processed"
 log_dir = root / "logs"
 
-output_dir.mkdir(parents=True, exist_ok=True)
 trim_dir.mkdir(parents=True, exist_ok=True)
 fastqc_dir.mkdir(parents=True, exist_ok=True)
 align_dir.mkdir(parents=True, exist_ok=True)
@@ -43,7 +40,6 @@ log_dir.mkdir(parents=True, exist_ok=True)
 print("using genome: " + str(genome_dir))
 
 print("input dir: " + str(input_dir))
-print("output dir: " + str(output_dir))
 
 print("trimmed sequences dir: " + str(trim_dir))
 print("fastqc dir: " + str(fastqc_dir))
