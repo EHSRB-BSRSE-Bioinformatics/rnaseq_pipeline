@@ -3,8 +3,11 @@ import pandas as pd
 from glob import glob
 import pathlib
 
-
 configfile: "config/config.yaml"
+
+envvars:
+    "prefix"
+    "genome_dir"
 
 print("config file: " + configfile)
 
@@ -18,18 +21,17 @@ SAMPLES = sample_info.values
 print("samples: " + str(SAMPLES))
 
 # set up directories
-root = Path("/")
+root = Path(os.environ["prefix"])
 
-genome_dir = root / config["genome_root_dir"] / config["genome"]
+genome_dir = Path(os.environ["genome_dir"])
 
-input_dir = Path(config["input_dir"])
-output_dir = Path(config["output_dir"])
+input_dir = root / "raw"
 
-trim_dir = output_dir / "trimmed"
-fastqc_dir = output_dir / "fastqc"
-align_dir = output_dir / "aligned"
-procesed_dir = output_dir / "processed"
-log_dir = output_dir / "logs"
+trim_dir = root / "trimmed"
+fastqc_dir = root / "fastqc"
+align_dir = root / "aligned"
+procesed_dir = root / "processed"
+log_dir = root / "logs"
 
 output_dir.mkdir(parents=True, exist_ok=True)
 trim_dir.mkdir(parents=True, exist_ok=True)
