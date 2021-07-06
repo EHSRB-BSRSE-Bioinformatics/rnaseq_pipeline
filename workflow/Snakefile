@@ -224,7 +224,7 @@ if config.mode == "pe":
         params:
             annotations = config.annotations,
             genome_dir = genome_dir,
-            lenfrac_required = config.lenfrac_required
+            lenfrac_required = config.lenfrac_required,
             threads = config.threads,
         resources:
             load=100
@@ -248,7 +248,7 @@ if config.mode == "se":
         params:
             annotations = config.annotations,
             genome_dir = genome_dir,
-            lenfrac_required = config.lenfrac_required
+            lenfrac_required = config.lenfrac_required,
             threads = config.threads,
         resources:
             load=100
