@@ -5,6 +5,8 @@ genome_filename:  GCF_000001635.27_GRCm39_genomic.fna
 # filename for gene annotations
 annotation_filename:  GCF_000001635.27_GRCm39_genomic.gtf.gz
 
+mode: se
+
 # sample stuff
 samples:
   sample1
