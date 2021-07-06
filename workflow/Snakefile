@@ -6,7 +6,7 @@ import pathlib
 configfile: "config/config.yaml"
 
 envvars:
-    "prefix"
+    "prefix",
     "genome_dir"
 
 print("config file: " + configfile)
