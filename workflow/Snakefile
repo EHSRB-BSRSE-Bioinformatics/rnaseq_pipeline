@@ -192,7 +192,7 @@ rule STAR_make_index:
         suffix_array_sparsity = 2, # bigger for smaller (RAM), slower indexing
         genomeChrBinNbits = 15, # might need to mess with this for bad genomes
     output:
-        directory(params.STAR_index),
+        directory(genome_dir / "STAR_index"),
     shell:
         '''
 		STAR \
@@ -219,7 +219,7 @@ if config["mode"] == "pe":
             bam = align_dir / "{sample}.aligned.out.bam"
         params:
             annotations = genome_dir / config["annotation_filename"],
-            genome_dir = genome_dir,
+            genome_dir = genome_dir / "STAR_index",
             threads = config["threads"],
         resources:
             load=100
@@ -242,7 +242,7 @@ if config["mode"] == "se":
             bam = align_dir / "{sample}.aligned.out.bam"
         params:
             annotations = genome_dir / config["annotation_filename"],
-            genome_dir = genome_dir,
+            genome_dir = genome_dir / "STAR_index",
             threads = config["threads"],
         resources:
             load=100
@@ -266,11 +266,10 @@ rule RSEM_make_index:
     input:
         genome = genome_dir / config["genome_filename"]
     params:
-        index_dir = config["rsem_index_dir"],
         annotations = config["annotations"],
         genome_id = config["genome_id"],
     output:
-        directory(params.index_dir),
+        directory(genome_dir / "RSEM_index"),
     shell:
 	    'rsem-prepare-reference --gtf {params.annotations} {input.genome} {output} {params.genome_id}'
 
@@ -278,7 +277,8 @@ rule RSEM_make_index:
 if config["mode"] == "pe":
     rule RSEM:
         input:
-            bam = align_dir / "{sample}.aligned.out.bam"
+            bam = align_dir / "{sample}.aligned.out.bam",
+            index = genome_dir / "RSEM_index",
         output:
             isoforms = quant_dir / "{sample}.isoforms.results",
             genes = quant_dir / "{sample}.genes.results",
@@ -291,14 +291,15 @@ if config["mode"] == "pe":
             --paired-end \
             --bam {input.bam} \
             --no-bam-output \
-            {input.genome} \
+            {input.index} \
             {sample}
             '''
 
 if config["mode"] == "se":
     rule RSEM:
         input:
-            bam = align_dir / "{sample}.aligned.out.bam"
+            bam = align_dir / "{sample}.aligned.out.bam",
+            index = genome_dir / "RSEM_index",
         output:
             isoforms = quant_dir / "{sample}.isoforms.results",
             genes = quant_dir / "{sample}.genes.results",
@@ -310,7 +311,7 @@ if config["mode"] == "se":
             --paired-end \
             --bam {input.bam} \
             --no-bam-output \
-            {input.genome} \
+            {input.index} \
             {sample}'
             '''
 
