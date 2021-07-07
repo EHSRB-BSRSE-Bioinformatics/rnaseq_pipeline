@@ -266,7 +266,7 @@ rule RSEM_make_index:
     input:
         genome = genome_dir / config["genome_filename"]
     params:
-        annotations = config["annotations"],
+        annotations = genome_dir / config["annotation_filename"],
         genome_id = config["genome_id"],
     output:
         directory(genome_dir / "RSEM_index"),
