@@ -183,10 +183,10 @@ if config["mode"] == "se":
 
 rule STAR_make_index:
     input:
-        genome = asdf #TODO fix this
+        genome = genome_dir / config.genome_filename
     params:
-        genome_dir = config.STAR_index,
-        annotations = config.annotations,
+        index_dir = genome_dir,
+        annotations = genome_dir / config.annotation_filename,
         overhang = 100,
         threads = config.threads,
         suffix_array_sparsity = 2, # bigger for smaller (RAM), slower indexing
@@ -197,7 +197,7 @@ rule STAR_make_index:
         '''
 		STAR \
         --runMode genomeGenerate \
-		--genomeDir {params.genome_dir} \
+		--genomeDir {params.index_dir} \
 		--genomeFastaFiles {input.genome} \
 		--sjdbGTFfile {params.annotations}} \
 		--sjdbOverhang {params.overhang} \
@@ -218,9 +218,8 @@ if config["mode"] == "pe":
         output:
             bam = align_dir / "{sample}.aligned.out.bam"
         params:
-            annotations = config.annotations,
+            annotations = genome_dir / config.annotation_filename,
             genome_dir = genome_dir,
-            lenfrac_required = config.lenfrac_required,
             threads = config.threads,
         resources:
             load=100
@@ -244,7 +243,6 @@ if config["mode"] == "se":
         params:
             annotations = config.annotations,
             genome_dir = genome_dir,
-            lenfrac_required = config.lenfrac_required,
             threads = config.threads,
         resources:
             load=100
@@ -266,7 +264,7 @@ if config["mode"] == "se":
 
 rule RSEM_make_index:
     input:
-        genome = asdf #TODO fix this
+        genome = genome_dir / config.genome_filename
     params:
         index_dir = config.rsem_index_dir,
         annotations = config.annotations,

@@ -7,6 +7,8 @@ annotation_filename:  GCF_000001635.27_GRCm39_genomic.gtf.gz
 
 mode: se
 
+threads: 1
+
 # sample stuff
 samples:
   sample1
