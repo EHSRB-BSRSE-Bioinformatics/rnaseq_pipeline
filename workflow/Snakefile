@@ -183,12 +183,12 @@ if config["mode"] == "se":
 
 rule STAR_make_index:
     input:
-        genome = genome_dir / config.genome_filename
+        genome = genome_dir / config["genome_filename"]
     params:
         index_dir = genome_dir,
-        annotations = genome_dir / config.annotation_filename,
+        annotations = genome_dir / config["annotation_filename"],
         overhang = 100,
-        threads = config.threads,
+        threads = config["threads"],
         suffix_array_sparsity = 2, # bigger for smaller (RAM), slower indexing
         genomeChrBinNbits = 15, # might need to mess with this for bad genomes
     output:
@@ -218,9 +218,9 @@ if config["mode"] == "pe":
         output:
             bam = align_dir / "{sample}.aligned.out.bam"
         params:
-            annotations = genome_dir / config.annotation_filename,
+            annotations = genome_dir / config["annotation_filename"],
             genome_dir = genome_dir,
-            threads = config.threads,
+            threads = config["threads"],
         resources:
             load=100
         shell:
@@ -241,9 +241,9 @@ if config["mode"] == "se":
         output:
             bam = align_dir / "{sample}.aligned.out.bam"
         params:
-            annotations = config.annotations,
+            annotations = genome_dir / config["annotation_filename"],
             genome_dir = genome_dir,
-            threads = config.threads,
+            threads = config["threads"],
         resources:
             load=100
         shell:
@@ -264,11 +264,11 @@ if config["mode"] == "se":
 
 rule RSEM_make_index:
     input:
-        genome = genome_dir / config.genome_filename
+        genome = genome_dir / config["genome_filename"]
     params:
-        index_dir = config.rsem_index_dir,
-        annotations = config.annotations,
-        genome_id = config.genome_id,
+        index_dir = config["rsem_index_dir"],
+        annotations = config["annotations"],
+        genome_id = config["genome_id"],
     output:
         directory(params.index_dir),
     shell:
@@ -283,7 +283,7 @@ if config["mode"] == "pe":
             isoforms = quant_dir / "{sample}.isoforms.results",
             genes = quant_dir / "{sample}.genes.results",
         params:
-            threads = config.threads,
+            threads = config["threads"],
         shell:
             '''
             rsem-calculate-expression \
@@ -303,7 +303,7 @@ if config["mode"] == "se":
             isoforms = quant_dir / "{sample}.isoforms.results",
             genes = quant_dir / "{sample}.genes.results",
         params:
-            threads = config.threads,
+            threads = config["threads"],
         shell:
             '''
             rsem-calculate-expression \
