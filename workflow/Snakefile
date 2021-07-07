@@ -19,32 +19,35 @@ SAMPLES = sample_info
 print("samples: " + str(SAMPLES))
 
 # set up directories
-output_dir = Path(os.environ["prefix"])
+main_dir = Path(os.environ["prefix"])
 
 genome_dir = Path(os.environ["genomedir"])
 
-input_dir = output_dir / "raw"
+data_dir = main_dir / "data"
+raw_dir = data_dir / "raw" # should already exist
 
-trim_dir = output_dir / "trimmed"
-fastqc_dir = output_dir / "fastqc"
-align_dir = output_dir / "aligned"
-quant_dir = output_dir / "processed"
-log_dir = output_dir / "logs"
+# set up output dirs
 
+processed_dir = data_dir / "processed"
+processed_dir.mkdir(parents=True, exist_ok=True)
+
+trim_dir = processed_dir / "trimmed"
+align_dir = processed_dir / "aligned"
+quant_dir = processed_dir / "processed"
 trim_dir.mkdir(parents=True, exist_ok=True)
-fastqc_dir.mkdir(parents=True, exist_ok=True)
 align_dir.mkdir(parents=True, exist_ok=True)
 quant_dir.mkdir(parents=True, exist_ok=True)
+
+analysis_dir = main_dir / "analysis"
+analysis_dir.mkdir(parents=True, exist_ok=True)
+
+qc_dir = analysis_dir / "QC"
+qc_dir.mkdir(parents=True, exist_ok=True)
+
+log_dir = main_dir / "logs"
 log_dir.mkdir(parents=True, exist_ok=True)
 
 print("using genome: " + str(genome_dir))
-
-print("input dir: " + str(input_dir))
-
-print("trimmed sequences dir: " + str(trim_dir))
-print("fastqc dir: " + str(fastqc_dir))
-print("alignments dir: " + str(align_dir))
-print("snakemake log dir: " + str(log_dir))
 
 shell("cp -rf workflow {log_dir}")
 shell("cp -rf config {log_dir}")
@@ -75,8 +78,8 @@ shell("cp -rf config {log_dir}")
 rule all:
     input:
         expand(str(trim_dir / "{sample}_trimmed.fq.gz"), sample=SAMPLES),
-        expand(str(align_dir / "{sample}_trimmed_bismark_bt2.bam"), sample=SAMPLES),
-        output_dir / "multiqc_report.html",
+
+        qc_dir / "multiqc_report.html",
     log: log_dir / "all.log"
 
 ##################################
@@ -105,11 +108,10 @@ if config["mode"] == "pe":
             R1=ancient(str(input_dir / "{sample}.R1.fastq.gz")),
             R2=ancient(str(input_dir / "{sample}.R2.fastq.gz")),
         output:
-            R1 = trim_dir / "{sample}.R1.qc.fastq.gz",
-            R2 = trim_dir / "{sample}.R2.qc.fastq.gz",
-            qhist = log_dir / "{sample}/qhist.txt",
-            lhist = log_dir / "{sample}/lhist.txt",
-            aqhist = log_dir / "{sample}/aqhist.txt",
+            R1 = trim_dir / "{sample}.R1.trimmed.fastq.gz",
+            R2 = trim_dir / "{sample}.R2.trimmed.fastq.gz",
+            json = qc_dir / "{sample}_fastp.json",
+            html = qc_dir / "{sample}_fastp.html",
         log:
             filter_stats = log_dir / "bbduk.{sample}.log"
         params:
@@ -123,12 +125,12 @@ if config["mode"] == "pe":
         shell:
             '''
             fastp \
-            --in1 input.R1 \
-            --in2 input.R2 \
-            --out1 output.R1 \
-            --out2 output.R2 \
-            --json
-            --html
+            --in1 {input.R1} \
+            --in2 {input.R2} \
+            --out1 {output.R1} \
+            --out2 {output.R2} \
+            --json {output.json} \
+            --html {output.html} \
             --cut_front \
             --cut_front_window_size params.front_size \
             --cut_front_mean_quality params.front_quality \
@@ -146,7 +148,9 @@ if config["mode"] == "se":
         input:
             R1=ancient(str(input_dir / "{sample}.R1.fastq.gz")),
         output:
-            R1 = trim_dir / "{sample}.R1.qc.fastq.gz",
+            R1 = trim_dir / "{sample}.R1.trimmed.fastq.gz",
+            json = qc_dir / "{sample}_fastp.json",
+            html = qc_dir / "{sample}_fastp.html",
         log:
             filter_stats = log_dir / "bbduk.{sample}.log"
         params:
@@ -160,10 +164,10 @@ if config["mode"] == "se":
         shell:
             '''
             fastp \
-            --in1 input.R1 \
-            --out1 output.R1 \
-            --json
-            --html
+            --in1 {input.R1} \
+            --out1 {output.R1} \
+            --json {output.json} \
+            --html {output.html} \
             --cut_front \
             --cut_front_window_size params.front_size \
             --cut_front_mean_quality params.front_quality \
@@ -183,7 +187,7 @@ if config["mode"] == "se":
 
 rule STAR_make_index:
     input:
-        genome = genome_dir / config["genome_filename"]
+        genome = ancient(genome_dir / config["genome_filename"])
     params:
         index_dir = genome_dir,
         annotations = genome_dir / config["annotation_filename"],
@@ -213,8 +217,8 @@ rule STAR_all:
 if config["mode"] == "pe":
     rule STAR:
         input:
-            R1 = trim_dir / "{sample}.R1.qc.fastq.gz",
-            R2 = trim_dir / "{sample}.R2.qc.fastq.gz",
+            R1 = trim_dir / "{sample}.R1.trimmed.fastq.gz",
+            R2 = trim_dir / "{sample}.R2.trimmed.fastq.gz",
         output:
             bam = align_dir / "{sample}.aligned.out.bam"
         params:
@@ -237,7 +241,7 @@ if config["mode"] == "pe":
 if config["mode"] == "se":
     rule STAR:
         input:
-            R1 = trim_dir / "{sample}.R1.qc.fastq.gz"
+            R1 = trim_dir / "{sample}.R1.trimmed.fastq.gz",
         output:
             bam = align_dir / "{sample}.aligned.out.bam"
         params:
@@ -320,13 +324,13 @@ if config["mode"] == "se":
 rule multiqc:
     message: "running multiqc"
     input:
-        expand(str(fastqc_dir / "{sample}_fastqc.zip"), sample=SAMPLES),
+        expand(str(qc_dir / "{sample}_fastqc.zip"), sample=SAMPLES),
         expand(str(trim_dir / "{sample}_trimmed.fq.gz"), sample=SAMPLES),
         expand(str(align_dir / "{sample}_trimmed_bismark_bt2.bam"), sample=SAMPLES)
     output:
-        output_dir / "multiqc_report.html"
+        qc_dir / "multiqc_report.html"
     log: log_dir / "multiqc.log"
     run:
-        shell("multiqc -fz {input_dir} {trim_dir} {align_dir} {fastqc_dir}")
+        shell("multiqc -fz {input_dir} {trim_dir} {align_dir} {qc_dir}")
         shell("mv multiqc_report.html multiqc_data.zip {output_dir}")
 
