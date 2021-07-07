@@ -5,18 +5,10 @@ import pathlib
 
 configfile: "config/config.yaml"
 
+
 envvars:
     "prefix",
     "genomedir"
-
-# set up conditions and samples
-sample_info = config["samples"]
-
-SAMPLES = sample_info
-#CONDITIONS = list(sample_info.keys())
-
-#print("conditions: " + str(CONDITIONS))
-print("samples: " + str(SAMPLES))
 
 # set up directories
 main_dir = Path(os.environ["prefix"])
@@ -25,6 +17,15 @@ genome_dir = Path(os.environ["genomedir"])
 
 data_dir = main_dir / "data"
 raw_dir = data_dir / "raw" # should already exist
+metadata_file = data_dir / "metadata.txt" # should aready exist
+#TODO set up a check to make sure stuff exists
+
+SAMPLES = pd.read_table(metadata_file).set_index("samples", drop=False)
+# set up conditions and samples
+#CONDITIONS = list(sample_info.keys())
+
+#print("conditions: " + str(CONDITIONS))
+print("samples: " + str(SAMPLES))
 
 # set up output dirs
 
