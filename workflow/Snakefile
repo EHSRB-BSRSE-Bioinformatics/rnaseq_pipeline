@@ -28,13 +28,13 @@ input_dir = output_dir / "raw"
 trim_dir = output_dir / "trimmed"
 fastqc_dir = output_dir / "fastqc"
 align_dir = output_dir / "aligned"
-procesed_dir = output_dir / "processed"
+quant_dir = output_dir / "processed"
 log_dir = output_dir / "logs"
 
 trim_dir.mkdir(parents=True, exist_ok=True)
 fastqc_dir.mkdir(parents=True, exist_ok=True)
 align_dir.mkdir(parents=True, exist_ok=True)
-procesed_dir.mkdir(parents=True, exist_ok=True)
+quant_dir.mkdir(parents=True, exist_ok=True)
 log_dir.mkdir(parents=True, exist_ok=True)
 
 print("using genome: " + str(genome_dir))
