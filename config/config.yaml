@@ -5,6 +5,9 @@ genome_filename:  GCF_000001635.27_GRCm39_genomic.fna
 # filename for gene annotations
 annotation_filename:  GCF_000001635.27_GRCm39_genomic.gtf.gz
 
+# used for labeling genome index files
+genome_name: "GRCm39" 
+
 mode: se
 
 threads: 1
