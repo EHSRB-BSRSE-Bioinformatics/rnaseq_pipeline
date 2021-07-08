@@ -147,9 +147,9 @@ if config["mode"] == "pe":
 if config["mode"] == "se":
     rule fastp:
         input:
-            R1=ancient(str(raw_dir / "{sample}.R1.fastq.gz")),
+            R1=ancient(str(raw_dir / "{sample}.fastq.gz")),
         output:
-            R1 = trim_dir / "{sample}.R1.trimmed.fastq.gz",
+            R1 = trim_dir / "{sample}.trimmed.fastq.gz",
             json = trim_dir / "{sample}_fastp.json",
             html = trim_dir / "{sample}_fastp.html",
         log:
@@ -242,7 +242,7 @@ if config["mode"] == "pe":
 if config["mode"] == "se":
     rule STAR:
         input:
-            R1 = trim_dir / "{sample}.R1.trimmed.fastq.gz",
+            R1 = trim_dir / "{sample}.trimmed.fastq.gz",
         output:
             bam = align_dir / "{sample}.aligned.out.bam"
         params:
