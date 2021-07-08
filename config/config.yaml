@@ -11,9 +11,3 @@ genome_name: "GRCm39"
 mode: se
 
 threads: 1
-
-# sample stuff
-samples:
-  sample1
-  sample2
-  sample3

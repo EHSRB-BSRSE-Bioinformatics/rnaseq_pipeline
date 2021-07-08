@@ -20,7 +20,7 @@ raw_dir = data_dir / "raw" # should already exist
 metadata_file = data_dir / "metadata.txt" # should aready exist
 #TODO set up a check to make sure stuff exists
 
-SAMPLES = pd.read_table(metadata_file).set_index("samples", drop=False)
+SAMPLES = pd.read_table(metadata_file).set_index("sample_id", drop=False)
 # set up conditions and samples
 #CONDITIONS = list(sample_info.keys())
 
