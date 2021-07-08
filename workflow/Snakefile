@@ -111,8 +111,8 @@ if config["mode"] == "pe":
         output:
             R1 = trim_dir / "{sample}.R1.trimmed.fastq.gz",
             R2 = trim_dir / "{sample}.R2.trimmed.fastq.gz",
-            json = qc_dir / "{sample}_fastp.json",
-            html = qc_dir / "{sample}_fastp.html",
+            json = trim_dir / "{sample}_fastp.json",
+            html = trim_dir / "{sample}_fastp.html",
         log:
             filter_stats = log_dir / "bbduk.{sample}.log"
         params:
@@ -150,8 +150,8 @@ if config["mode"] == "se":
             R1=ancient(str(raw_dir / "{sample}.R1.fastq.gz")),
         output:
             R1 = trim_dir / "{sample}.R1.trimmed.fastq.gz",
-            json = qc_dir / "{sample}_fastp.json",
-            html = qc_dir / "{sample}_fastp.html",
+            json = trim_dir / "{sample}_fastp.json",
+            html = trim_dir / "{sample}_fastp.html",
         log:
             filter_stats = log_dir / "bbduk.{sample}.log"
         params:
@@ -325,13 +325,14 @@ if config["mode"] == "se":
 rule multiqc:
     message: "running multiqc"
     input:
-        expand(str(qc_dir / "{sample}_fastqc.zip"), sample=SAMPLES),
-        expand(str(trim_dir / "{sample}_trimmed.fq.gz"), sample=SAMPLES),
-        expand(str(align_dir / "{sample}_trimmed_bismark_bt2.bam"), sample=SAMPLES)
+        expand(str(trim_dir / "{sample}_fastp.json"), sample=SAMPLES),
+        expand(str(align_dir / "{sample}.aligned.out.bam"), sample=SAMPLES),
+        expand(str(quant_dir / "{sample}.genes.results"), sample=SAMPLES),
+        expand(str(quant_dir / "{sample}.isoforms.results"), sample=SAMPLES)
     output:
         qc_dir / "multiqc_report.html"
     log: log_dir / "multiqc.log"
     run:
-        shell("multiqc -fz {raw_dir} {trim_dir} {align_dir} {qc_dir}")
-        shell("mv multiqc_report.html multiqc_data.zip {output_dir}")
+        shell("multiqc -fz {raw_dir} {trim_dir} {align_dir} {quant_dir}")
+        shell("mv multiqc_report.html multiqc_data.zip {qc_dir}")
 
