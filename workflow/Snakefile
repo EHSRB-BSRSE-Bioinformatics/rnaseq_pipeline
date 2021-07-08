@@ -106,8 +106,8 @@ rule fastp_all:
 if config["mode"] == "pe":
     rule fastp:
         input:
-            R1=ancient(str(input_dir / "{sample}.R1.fastq.gz")),
-            R2=ancient(str(input_dir / "{sample}.R2.fastq.gz")),
+            R1=ancient(str(raw_dir / "{sample}.R1.fastq.gz")),
+            R2=ancient(str(raw_dir / "{sample}.R2.fastq.gz")),
         output:
             R1 = trim_dir / "{sample}.R1.trimmed.fastq.gz",
             R2 = trim_dir / "{sample}.R2.trimmed.fastq.gz",
@@ -147,7 +147,7 @@ if config["mode"] == "pe":
 if config["mode"] == "se":
     rule fastp:
         input:
-            R1=ancient(str(input_dir / "{sample}.R1.fastq.gz")),
+            R1=ancient(str(raw_dir / "{sample}.R1.fastq.gz")),
         output:
             R1 = trim_dir / "{sample}.R1.trimmed.fastq.gz",
             json = qc_dir / "{sample}_fastp.json",
@@ -332,6 +332,6 @@ rule multiqc:
         qc_dir / "multiqc_report.html"
     log: log_dir / "multiqc.log"
     run:
-        shell("multiqc -fz {input_dir} {trim_dir} {align_dir} {qc_dir}")
+        shell("multiqc -fz {raw_dir} {trim_dir} {align_dir} {qc_dir}")
         shell("mv multiqc_report.html multiqc_data.zip {output_dir}")
 
