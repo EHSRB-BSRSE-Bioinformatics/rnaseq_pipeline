@@ -78,7 +78,7 @@ shell("cp -rf config {log_dir}")
 
 rule all:
     input:
-        expand(str(trim_dir / "{sample}_trimmed.fq.gz"), sample=SAMPLES),
+        expand(str(trim_dir / "{sample}.trimmed.fq.gz"), sample=SAMPLES),
 
         qc_dir / "multiqc_report.html",
     log: log_dir / "all.log"
@@ -100,7 +100,7 @@ rule all:
 
 rule fastp_all:
     input:
-        expand(str(trim_dir / "{sample}_trimmed.fq.gz"), sample=SAMPLES),
+        expand(str(trim_dir / "{sample}.trimmed.fq.gz"), sample=SAMPLES),
     log: log_dir / "bbduk_all.log"
 
 if config["mode"] == "pe":
