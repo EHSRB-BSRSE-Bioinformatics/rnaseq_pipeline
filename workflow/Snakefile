@@ -289,6 +289,7 @@ if config["mode"] == "pe":
             genes = quant_dir / "{sample}.genes.results",
         params:
             threads = config["threads"],
+            sample_id = "{sample}"
         shell:
             '''
             rsem-calculate-expression \
@@ -297,7 +298,7 @@ if config["mode"] == "pe":
             --bam {input.bam} \
             --no-bam-output \
             {input.index} \
-            {sample}
+            {params.sample_id}'
             '''
 
 if config["mode"] == "se":
@@ -310,6 +311,7 @@ if config["mode"] == "se":
             genes = quant_dir / "{sample}.genes.results",
         params:
             threads = config["threads"],
+            sample_id = "{sample}"
         shell:
             '''
             rsem-calculate-expression \
@@ -317,7 +319,7 @@ if config["mode"] == "se":
             --bam {input.bam} \
             --no-bam-output \
             {input.index} \
-            {sample}'
+            {params.sample_id}'
             '''
 
 # multiqc
