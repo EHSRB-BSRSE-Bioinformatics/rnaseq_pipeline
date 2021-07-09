@@ -204,7 +204,7 @@ rule STAR_make_index:
         --runMode genomeGenerate \
 		--genomeDir {params.index_dir} \
 		--genomeFastaFiles {input.genome} \
-		--sjdbGTFfile {params.annotations}} \
+		--sjdbGTFfile {params.annotations} \
 		--sjdbOverhang {params.overhang} \
 		--runThreadN {params.threads} \
 		--genomeSAsparseD {params.suffix_array_sparsity} \
