@@ -3,7 +3,7 @@
 genome_filename:  GCF_000001635.27_GRCm39_genomic.fna
 
 # filename for gene annotations
-annotation_filename:  GCF_000001635.27_GRCm39_genomic.gtf.gz
+annotation_filename:  GCF_000001635.27_GRCm39_genomic.gtf
 
 # used for labeling genome index files
 genome_name: "GRCm39" 
