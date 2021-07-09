@@ -276,7 +276,10 @@ rule RSEM_make_index:
     output:
         directory(genome_dir / "RSEM_index"),
     shell:
-	    'rsem-prepare-reference --gtf {params.annotations} {input.genome} {output} {params.genome_name}'
+        'cp {params.annotations} {output}/annot.gtf.gz'
+        'gunzip {output}/annot.gtf.gz'
+	    'rsem-prepare-reference --gtf {output}/annot.gtf {input.genome} {output}/{params.genome_name}'
+        'rm {output}/annot.gtf'
 
 
 if config["mode"] == "pe":
