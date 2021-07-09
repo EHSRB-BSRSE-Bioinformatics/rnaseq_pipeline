@@ -277,6 +277,7 @@ rule RSEM_make_index:
         directory(genome_dir / "RSEM_index"),
     shell:
         '''
+        mkdir {genome_dir}/RSEM_index
         cp {params.annotations} {output}/annot.gtf.gz
         gunzip {output}/annot.gtf.gz
 	    rsem-prepare-reference --gtf {output}/annot.gtf {input.genome} {output}/{params.genome_name}
