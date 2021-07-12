@@ -222,7 +222,7 @@ if config["mode"] == "pe":
             R2 = trim_dir / "{sample}.R2.trimmed.fastq.gz",
             index = genome_dir / "STAR_index",
         output:
-            sortedByCoord = align_dir / "{sample}.Aligned.sortedByCoord.out.bam"
+            sortedByCoord = align_dir / "{sample}.Aligned.sortedByCoord.out.bam",
             toTranscriptome = align_dir / "{sample}.Aligned.toTranscriptome.out.bam"
         params:
             annotations = genome_dir / config["annotation_filename"],
@@ -248,7 +248,7 @@ if config["mode"] == "se":
             R1 = trim_dir / "{sample}.trimmed.fastq.gz",
             index = genome_dir / "STAR_index",
         output:
-            sortedByCoord = align_dir / "{sample}.Aligned.sortedByCoord.out.bam"
+            sortedByCoord = align_dir / "{sample}.Aligned.sortedByCoord.out.bam",
             toTranscriptome = align_dir / "{sample}.Aligned.toTranscriptome.out.bam"
         params:
             annotations = genome_dir / config["annotation_filename"],
