@@ -261,7 +261,7 @@ if config["mode"] == "se":
                 --readFilesIn {input.R1} \
                 --quantMode TranscriptomeSAM \
                 --readFilesCommand zcat \
-                --outFileNamePrefix {output.bam_prefix}
+                --outFileNamePrefix {params.bam_prefix}
             '''
 
 
