@@ -288,13 +288,14 @@ if config["mode"] == "pe":
     rule RSEM:
         input:
             bam = align_dir / "{sample}.Aligned.toTranscriptome.out.bam",
-            index = genome_dir / "RSEM_index" / config["genome_name"],
+            index = genome_dir / "RSEM_index" 
         output:
             isoforms = quant_dir / "{sample}.isoforms.results",
             genes = quant_dir / "{sample}.genes.results",
         params:
             threads = config["threads"],
-            sample_id = "{sample}"
+            sample_id = "{sample}",
+            index_name = config["genome_name"],
         shell:
             '''
             rsem-calculate-expression \
@@ -302,7 +303,7 @@ if config["mode"] == "pe":
             --paired-end \
             --bam {input.bam} \
             --no-bam-output \
-            {input.index} \
+            {input.index}/{params.index_name} \
             {params.sample_id}'
             '''
 
@@ -310,20 +311,21 @@ if config["mode"] == "se":
     rule RSEM:
         input:
             bam = align_dir / "{sample}.Aligned.toTranscriptome.out.bam",
-            index = genome_dir / "RSEM_index" / config["genome_name"],
+            index = genome_dir / "RSEM_index" 
         output:
             isoforms = quant_dir / "{sample}.isoforms.results",
             genes = quant_dir / "{sample}.genes.results",
         params:
             threads = config["threads"],
-            sample_id = "{sample}"
+            sample_id = "{sample}",
+            index_name = config["genome_name"],
         shell:
             '''
             rsem-calculate-expression \
             --paired-end \
             --bam {input.bam} \
             --no-bam-output \
-            {input.index} \
+            {input.index}/{params.index_name} \
             {params.sample_id}'
             '''
 
