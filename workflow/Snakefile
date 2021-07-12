@@ -222,11 +222,11 @@ if config["mode"] == "pe":
             R2 = trim_dir / "{sample}.R2.trimmed.fastq.gz",
             index = genome_dir / "STAR_index",
         output:
-            bam = align_dir / "{sample}.aligned.out.bam"
+            bam = align_dir / "{sample}.Aligned.out.bam"
         params:
             annotations = genome_dir / config["annotation_filename"],
             threads = config["threads"],
-            bam_prefix = lambda wildcards : align_dir / "{}.aligned".format(wildcards.sample),
+            bam_prefix = lambda wildcards : align_dir / "{}.".format(wildcards.sample),
         resources:
             load=100
         shell:
@@ -246,11 +246,11 @@ if config["mode"] == "se":
             R1 = trim_dir / "{sample}.trimmed.fastq.gz",
             index = genome_dir / "STAR_index",
         output:
-            bam = align_dir / "{sample}.aligned.out.bam"
+            bam = align_dir / "{sample}.Aligned.out.bam"
         params:
             annotations = genome_dir / config["annotation_filename"],
             threads = config["threads"],
-            bam_prefix = lambda wildcards : align_dir / "{}.aligned".format(wildcards.sample),
+            bam_prefix = lambda wildcards : align_dir / "{}.".format(wildcards.sample),
         resources:
             load=100
         shell:
