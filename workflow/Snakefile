@@ -195,7 +195,7 @@ rule STAR_make_index:
         overhang = 100,
         threads = config["threads"],
         suffix_array_sparsity = 2, # bigger for smaller (RAM), slower indexing
-        genomeChrBinNbits = 15, # might need to mess with this for bad genomes
+        genomeChrBinNbits = 12, # might need to mess with this for different genomes
     output:
         directory(genome_dir / "STAR_index"),
     shell:
