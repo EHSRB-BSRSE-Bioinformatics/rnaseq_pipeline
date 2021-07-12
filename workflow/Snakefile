@@ -226,6 +226,7 @@ if config["mode"] == "pe":
         params:
             annotations = genome_dir / config["annotation_filename"],
             threads = config["threads"],
+            bam_prefix = align_dir / "{sample}.aligned",
         resources:
             load=100
         shell:
@@ -236,7 +237,7 @@ if config["mode"] == "pe":
 			--readFilesIn {input.R1} {input.R2} \
 			--quantMode TranscriptomeSAM \
 			--readFilesCommand zcat \
-			--outFileNamePrefix {output.bam} #TODO fix this so that it's pointing to the directory properly
+			--outFileNamePrefix {params.bam_prefix}
             '''
 
 if config["mode"] == "se":
@@ -249,6 +250,7 @@ if config["mode"] == "se":
         params:
             annotations = genome_dir / config["annotation_filename"],
             threads = config["threads"],
+            bam_prefix = align_dir / "{sample}.aligned",
         resources:
             load=100
         shell:
@@ -259,7 +261,7 @@ if config["mode"] == "se":
                 --readFilesIn {input.R1} \
                 --quantMode TranscriptomeSAM \
                 --readFilesCommand zcat \
-                --outFileNamePrefix {output.bam} #TODO fix this so that it's pointing to the directory properly
+                --outFileNamePrefix {output.bam_prefix}
             '''
 
 
