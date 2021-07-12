@@ -238,7 +238,7 @@ if config["mode"] == "pe":
 			--quantMode TranscriptomeSAM \
 			--readFilesCommand zcat \
 			--outFileNamePrefix {params.bam_prefix} \
-            --outSAMtype BAM
+            --outSAMtype BAM SortedByCoordinate
             '''
 
 if config["mode"] == "se":
@@ -263,7 +263,7 @@ if config["mode"] == "se":
                 --quantMode TranscriptomeSAM \
                 --readFilesCommand zcat \
                 --outFileNamePrefix {params.bam_prefix} \
-                --outSAMtype BAM
+                --outSAMtype BAM SortedByCoordinate
             '''
 
 
