@@ -213,7 +213,7 @@ rule STAR_make_index:
 
 rule STAR_all:
     input:
-        expand(str(align_dir / "{sample}.Aligned.sortedByCoord.out.bam"), sample=SAMPLES)
+        expand(str(align_dir / "{sample}.Aligned.toTranscriptome.out.bam"), sample=SAMPLES)
 
 if config["mode"] == "pe":
     rule STAR:
@@ -222,7 +222,8 @@ if config["mode"] == "pe":
             R2 = trim_dir / "{sample}.R2.trimmed.fastq.gz",
             index = genome_dir / "STAR_index",
         output:
-            bam = align_dir / "{sample}.Aligned.sortedByCoord.out.bam"
+            sortedByCoord = align_dir / "{sample}.Aligned.sortedByCoord.out.bam"
+            toTranscriptome = align_dir / "{sample}.Aligned.toTranscriptome.out.bam"
         params:
             annotations = genome_dir / config["annotation_filename"],
             threads = config["threads"],
@@ -247,7 +248,8 @@ if config["mode"] == "se":
             R1 = trim_dir / "{sample}.trimmed.fastq.gz",
             index = genome_dir / "STAR_index",
         output:
-            bam = align_dir / "{sample}.Aligned.sortedByCoord.out.bam"
+            sortedByCoord = align_dir / "{sample}.Aligned.sortedByCoord.out.bam"
+            toTranscriptome = align_dir / "{sample}.Aligned.toTranscriptome.out.bam"
         params:
             annotations = genome_dir / config["annotation_filename"],
             threads = config["threads"],
@@ -285,8 +287,8 @@ rule RSEM_make_index:
 if config["mode"] == "pe":
     rule RSEM:
         input:
-            bam = align_dir / "{sample}.Aligned.sortedByCoord.out.bam",
-            index = genome_dir / "RSEM_index",
+            bam = align_dir / "{sample}.Aligned.toTranscriptome.out.bam",
+            index = genome_dir / "RSEM_index" / config["genome_name"],
         output:
             isoforms = quant_dir / "{sample}.isoforms.results",
             genes = quant_dir / "{sample}.genes.results",
@@ -307,8 +309,8 @@ if config["mode"] == "pe":
 if config["mode"] == "se":
     rule RSEM:
         input:
-            bam = align_dir / "{sample}.Aligned.sortedByCoord.out.bam",
-            index = genome_dir / "RSEM_index",
+            bam = align_dir / "{sample}.Aligned.toTranscriptome.out.bam",
+            index = genome_dir / "RSEM_index" / config["genome_name"],
         output:
             isoforms = quant_dir / "{sample}.isoforms.results",
             genes = quant_dir / "{sample}.genes.results",
@@ -331,7 +333,7 @@ rule multiqc:
     message: "running multiqc"
     input:
         expand(str(trim_dir / "{sample}_fastp.json"), sample=SAMPLES),
-        expand(str(align_dir / "{sample}.Aligned.sortedByCoord.out.bam"), sample=SAMPLES),
+        expand(str(align_dir / "{sample}.Aligned.toTranscriptome.out.bam"), sample=SAMPLES),
         expand(str(quant_dir / "{sample}.genes.results"), sample=SAMPLES),
         expand(str(quant_dir / "{sample}.isoforms.results"), sample=SAMPLES)
     output:
