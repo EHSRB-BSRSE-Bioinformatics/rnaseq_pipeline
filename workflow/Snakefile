@@ -34,7 +34,7 @@ processed_dir.mkdir(parents=True, exist_ok=True)
 
 trim_dir = processed_dir / "trimmed"
 align_dir = processed_dir / "aligned"
-quant_dir = processed_dir / "processed"
+quant_dir = processed_dir / "quant"
 trim_dir.mkdir(parents=True, exist_ok=True)
 align_dir.mkdir(parents=True, exist_ok=True)
 quant_dir.mkdir(parents=True, exist_ok=True)
@@ -317,7 +317,7 @@ if config["mode"] == "se":
             genes = quant_dir / "{sample}.genes.results",
         params:
             threads = config["threads"],
-            sample_id = "{sample}",
+            sample_id = quant_dir / "{sample}",
             index_name = config["genome_name"],
         shell:
             '''
