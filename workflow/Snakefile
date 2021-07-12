@@ -283,7 +283,7 @@ rule RSEM_make_index:
 if config["mode"] == "pe":
     rule RSEM:
         input:
-            bam = align_dir / "{sample}.aligned.out.bam",
+            bam = align_dir / "{sample}.Aligned.out.bam",
             index = genome_dir / "RSEM_index",
         output:
             isoforms = quant_dir / "{sample}.isoforms.results",
@@ -305,7 +305,7 @@ if config["mode"] == "pe":
 if config["mode"] == "se":
     rule RSEM:
         input:
-            bam = align_dir / "{sample}.aligned.out.bam",
+            bam = align_dir / "{sample}.Aligned.out.bam",
             index = genome_dir / "RSEM_index",
         output:
             isoforms = quant_dir / "{sample}.isoforms.results",
