@@ -304,7 +304,7 @@ if config["mode"] == "pe":
             --bam {input.bam} \
             --no-bam-output \
             {input.index}/{params.index_name} \
-            {params.sample_id}'
+            {params.sample_id}
             '''
 
 if config["mode"] == "se":
@@ -322,11 +322,11 @@ if config["mode"] == "se":
         shell:
             '''
             rsem-calculate-expression \
-            --paired-end \
+            -p {params.threads} \
             --bam {input.bam} \
             --no-bam-output \
             {input.index}/{params.index_name} \
-            {params.sample_id}'
+            {params.sample_id}
             '''
 
 # multiqc
