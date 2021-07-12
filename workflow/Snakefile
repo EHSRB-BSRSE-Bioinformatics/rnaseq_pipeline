@@ -190,7 +190,7 @@ rule STAR_make_index:
     input:
         genome = ancient(genome_dir / config["genome_filename"])
     params:
-        index_dir = genome_dir,
+        index_dir = genome_dir / "STAR_index",
         annotations = genome_dir / config["annotation_filename"],
         overhang = 100,
         threads = config["threads"],
