@@ -213,7 +213,7 @@ rule STAR_make_index:
 
 rule STAR_all:
     input:
-        expand(str(align_dir / "{sample}.aligned.out.bam"), sample=SAMPLES)
+        expand(str(align_dir / "{sample}.Aligned.out.bam"), sample=SAMPLES)
 
 if config["mode"] == "pe":
     rule STAR:
@@ -329,7 +329,7 @@ rule multiqc:
     message: "running multiqc"
     input:
         expand(str(trim_dir / "{sample}_fastp.json"), sample=SAMPLES),
-        expand(str(align_dir / "{sample}.aligned.out.bam"), sample=SAMPLES),
+        expand(str(align_dir / "{sample}.Aligned.out.bam"), sample=SAMPLES),
         expand(str(quant_dir / "{sample}.genes.results"), sample=SAMPLES),
         expand(str(quant_dir / "{sample}.isoforms.results"), sample=SAMPLES)
     output:
