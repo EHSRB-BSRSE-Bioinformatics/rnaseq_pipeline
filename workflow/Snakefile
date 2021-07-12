@@ -254,7 +254,7 @@ if config["mode"] == "se":
         resources:
             load=100
         shell:
-            echo {params.bam_prefix}
+            'echo {params.bam_prefix}'
             # '''
             # STAR \
             #     --runThreadN {params.threads} \
