@@ -226,7 +226,7 @@ if config["mode"] == "pe":
         params:
             annotations = genome_dir / config["annotation_filename"],
             threads = config["threads"],
-            bam_prefix = align_dir / "{sample}.aligned",
+            bam_prefix = lambda wildcards : align_dir / "{}.aligned".format(wildcards.sample),
         resources:
             load=100
         shell:
@@ -254,16 +254,15 @@ if config["mode"] == "se":
         resources:
             load=100
         shell:
-            'echo {params.bam_prefix}'
-            # '''
-            # STAR \
-            #     --runThreadN {params.threads} \
-			#     --genomeDir {input.index} \
-            #     --readFilesIn {input.R1} \
-            #     --quantMode TranscriptomeSAM \
-            #     --readFilesCommand zcat \
-            #     --outFileNamePrefix {params.bam_prefix}
-            # '''
+            '''
+            STAR \
+                --runThreadN {params.threads} \
+			    --genomeDir {input.index} \
+                --readFilesIn {input.R1} \
+                --quantMode TranscriptomeSAM \
+                --readFilesCommand zcat \
+                --outFileNamePrefix {params.bam_prefix}
+            '''
 
 
 #######################
