@@ -294,7 +294,7 @@ if config["mode"] == "pe":
             genes = quant_dir / "{sample}.genes.results",
         params:
             threads = config["threads"],
-            sample_id = "{sample}",
+            output_prefix =  lambda wildcards : quant_dir / "{}".format(wildcards.sample),
             index_name = config["genome_name"],
         shell:
             '''
@@ -304,7 +304,7 @@ if config["mode"] == "pe":
             --bam {input.bam} \
             --no-bam-output \
             {input.index}/{params.index_name} \
-            {params.sample_id}
+            {params.output_prefix}
             '''
 
 if config["mode"] == "se":
@@ -317,7 +317,7 @@ if config["mode"] == "se":
             genes = quant_dir / "{sample}.genes.results",
         params:
             threads = config["threads"],
-            sample_id = quant_dir / "{sample}",
+            output_prefix =  lambda wildcards : quant_dir / "{}".format(wildcards.sample),
             index_name = config["genome_name"],
         shell:
             '''
@@ -326,7 +326,7 @@ if config["mode"] == "se":
             --bam {input.bam} \
             --no-bam-output \
             {input.index}/{params.index_name} \
-            {params.sample_id}
+            {params.output_prefix}
             '''
 
 # multiqc
