@@ -15,7 +15,7 @@ main_dir = Path(os.environ["prefix"])
 
 genome_dir = Path(os.environ["genomedir"])
 
-data_dir = main_dir / "data_pool2"
+data_dir = main_dir / "data_pool1_run1"
 raw_dir = data_dir / "raw" # should already exist
 metadata_file = data_dir / "metadata.txt" # should aready exist
 #TODO set up a check to make sure stuff exists
