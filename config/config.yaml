@@ -8,6 +8,11 @@ annotation_filename:  GCF_000001635.27_GRCm39_genomic.gtf
 # used for labeling genome index files
 genome_name: "GRCm39" 
 
+# one of 'rnaseq' or 'temposeq'
+seqtype: rnaseq
+
+# one of 'se' (single end) or 'pe' (paired end)
 mode: se
 
+# number of threads to use, for multi-threaded programs
 threads: 8
