@@ -125,6 +125,7 @@ if config["mode"] == "pe":
             right_size = 4,
             right_quality = 15,
             length_required = 36,
+            threads = config["threads"],
         shell:
             '''
             fastp \
@@ -144,6 +145,7 @@ if config["mode"] == "pe":
             --cut_right_window_size {params.right_size} \
             --cut_right_mean_quality {params.right_quality} \
             --length_required {params.length_required} \
+	    	--thread {params.threads} \
             '''
 
 if config["mode"] == "se":
@@ -164,6 +166,7 @@ if config["mode"] == "se":
             right_size = 4,
             right_quality = 15,
             length_required = 36,
+            threads = config["threads"],
         shell:
             '''
             fastp \
@@ -181,6 +184,7 @@ if config["mode"] == "se":
             --cut_right_window_size {params.right_size} \
             --cut_right_mean_quality {params.right_quality} \
             --length_required {params.length_required} \
+	    	--thread {params.threads} \
             '''
 
 
