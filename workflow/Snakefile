@@ -335,6 +335,19 @@ if config["mode"] == "se":
             {params.output_prefix}
             '''
 
+rule counts_matrix:
+    input:
+        genes = expand(str(quant_dir / "{sample}.genes.results"), sample=SAMPLES)
+        isoforms = expand(str(quant_dir / "{sample}.isoforms.results"), sample=SAMPLES)
+    output:
+        genes = quant_dir / genes.data.tsv
+        isoforms = quant_dir / isoforms.data.tsv
+    shell:
+        "rsem-generate-data-matrix {input.genes} > {output.genes}"
+        "sed -i 's/\.genes.results//g' {output.genes}"
+        "rsem-generate-data-matrix {input.isoforms} > {output.isoforms}"
+        "sed -i 's/\.isoforms.results//g' {output.isoforms}"
+
 # multiqc
 
 rule multiqc:
