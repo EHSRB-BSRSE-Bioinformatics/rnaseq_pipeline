@@ -340,8 +340,8 @@ rule counts_matrix:
         genes = expand(str(quant_dir / "{sample}.genes.results"), sample=SAMPLES),
         isoforms = expand(str(quant_dir / "{sample}.isoforms.results"), sample=SAMPLES)
     output:
-        genes = quant_dir / genes.data.tsv,
-        isoforms = quant_dir / isoforms.data.tsv
+        genes = quant_dir / "genes.data.tsv",
+        isoforms = quant_dir / "isoforms.data.tsv"
     shell:
         "rsem-generate-data-matrix {input.genes} > {output.genes}",
         "sed -i 's/\.genes.results//g' {output.genes}",
