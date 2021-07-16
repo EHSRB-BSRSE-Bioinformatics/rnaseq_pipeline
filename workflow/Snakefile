@@ -343,10 +343,12 @@ rule counts_matrix:
         genes = quant_dir / "genes.data.tsv",
         isoforms = quant_dir / "isoforms.data.tsv"
     shell:
-        "rsem-generate-data-matrix {input.genes} > {output.genes}",
-        "sed -i 's/\.genes.results//g' {output.genes}",
-        "rsem-generate-data-matrix {input.isoforms} > {output.isoforms}",
-        "sed -i 's/\.isoforms.results//g' {output.isoforms}"
+        '''
+        rsem-generate-data-matrix {input.genes} > {output.genes}
+        sed -i 's/\.genes.results//g' {output.genes}
+        rsem-generate-data-matrix {input.isoforms} > {output.isoforms}
+        sed -i 's/\.isoforms.results//g' {output.isoforms}
+        '''
 
 # multiqc
 
