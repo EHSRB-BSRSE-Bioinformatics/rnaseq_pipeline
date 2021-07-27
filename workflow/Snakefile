@@ -363,6 +363,6 @@ rule multiqc:
         qc_dir / "multiqc_report.html"
     log: log_dir / "multiqc.log"
     run:
-        shell("multiqc --cl_config \"extra_fn_clean_exts: { '_fastp.json' }\" -fz {raw_dir} {trim_dir} {align_dir} {quant_dir}")
+        shell("multiqc --cl_config \"extra_fn_clean_exts: {{ '_fastp.json' }}\" -fz {raw_dir} {trim_dir} {align_dir} {quant_dir}")
         shell("mv multiqc_report.html multiqc_data.zip {qc_dir}")
 
