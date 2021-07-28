@@ -348,9 +348,11 @@ rule counts_matrix:
         rsem-generate-data-matrix {input.genes} > {output.genes}
         sed -i 's/\.genes.results//g' {output.genes}
         sed -i 's|{quant_dir}/||g' {output.genes}
+        sed -i 's/"//g' {output.genes}
         rsem-generate-data-matrix {input.isoforms} > {output.isoforms}
         sed -i 's/\.isoforms.results//g' {output.isoforms}
         sed -i 's|{quant_dir}/||g' {output.isoforms}
+        sed -i 's/"//g' {output.isoforms}
         '''
 
 # multiqc
