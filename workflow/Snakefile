@@ -81,8 +81,9 @@ shell("cp -rf config {log_dir}")
 rule all:
     input:
         expand(str(trim_dir / "{sample}.trimmed.fastq.gz"), sample=SAMPLES),
-
         qc_dir / "multiqc_report.html",
+        processed_dir / "genes.data.tsv",
+        processed_dir / "isoforms.data.tsv"
     log: log_dir / "all.log"
 
 ##################################
@@ -340,8 +341,8 @@ rule counts_matrix:
         genes = expand(str(quant_dir / "{sample}.genes.results"), sample=SAMPLES),
         isoforms = expand(str(quant_dir / "{sample}.isoforms.results"), sample=SAMPLES)
     output:
-        genes = quant_dir / "genes.data.tsv",
-        isoforms = quant_dir / "isoforms.data.tsv"
+        genes = processed_dir / "genes.data.tsv",
+        isoforms = processed_dir / "isoforms.data.tsv"
     shell:
         '''
         rsem-generate-data-matrix {input.genes} > {output.genes}
